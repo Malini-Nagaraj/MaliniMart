@@ -1,0 +1,10 @@
+^C:\MALINIMART\BUILD\CMAKEFILES\ADC55776D43B67BF74C8B24394D1F195\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/malinimart -BC:/malinimart/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/malinimart/build/MaliniMart.slnx
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

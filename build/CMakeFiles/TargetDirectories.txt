@@ -1,0 +1,3 @@
+C:/malinimart/build/CMakeFiles/MaliniMart.dir
+C:/malinimart/build/CMakeFiles/ALL_BUILD.dir
+C:/malinimart/build/CMakeFiles/ZERO_CHECK.dir
