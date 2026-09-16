@@ -1,0 +1,16 @@
+{
+  "name": "malinimart",
+  "version": "1.0.0",
+  "dependencies": [
+    {
+      "name": "drogon",
+      "features": [
+        "postgres"
+      ]
+    },
+    "nlohmann-json",
+    "spdlog",
+    "libpqxx",
+    "libsodium"
+  ]
+}
