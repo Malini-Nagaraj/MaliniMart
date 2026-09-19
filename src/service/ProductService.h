@@ -1,28 +1,88 @@
-#ifndef PRODUCTSERVICE_H
-#define PRODUCTSERVICE_H
+#pragma once
 
+#include <drogon/drogon.h>
 #include "../repository/ProductRepository.h"
 
-class ProductService {
+class ProductService
+{
 private:
     ProductRepository repository;
 
 public:
-    void addProduct(Product product) {
+
+    // Constructor
+    ProductService(drogon::orm::DbClientPtr db)
+        : repository(db)
+    {
+    }
+
+
+    // =========================
+    // ADD PRODUCT
+    // =========================
+
+    void addProduct(const Product& product)
+    {
         repository.addProduct(product);
     }
 
-    vector<Product> getAllProducts() {
-        return repository.getAllProducts();
+
+    // =========================
+    // GET ALL PRODUCTS
+    // =========================
+
+    void getAllProducts(
+        std::function<void(const drogon::orm::Result&)>&& callback)
+    {
+        repository.getAllProducts(
+            std::move(callback)
+        );
     }
 
-    Product* getProductById(int id) {
-        return repository.getProductById(id);
+
+    // =========================
+    // SEARCH PRODUCTS
+    // =========================
+
+    void searchProducts(
+        const std::string& keyword,
+        std::function<void(const drogon::orm::Result&)>&& callback)
+    {
+        repository.searchProducts(
+            keyword,
+            std::move(callback)
+        );
     }
 
-    bool deleteProduct(int id) {
-        return repository.deleteProduct(id);
+
+    // =========================
+    // UPDATE PRODUCT
+    // =========================
+
+    void updateProduct(
+        int id,
+        const Product& product,
+        std::function<void(bool)>&& callback)
+    {
+        repository.updateProduct(
+            id,
+            product,
+            std::move(callback)
+        );
+    }
+
+
+    // =========================
+    // DELETE PRODUCT
+    // =========================
+
+    void deleteProduct(
+        int id,
+        std::function<void(bool)>&& callback)
+    {
+        repository.deleteProduct(
+            id,
+            std::move(callback)
+        );
     }
 };
-
-#endif

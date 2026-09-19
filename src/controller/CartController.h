@@ -1,65 +1,89 @@
 #pragma once
 
 #include <drogon/drogon.h>
-#include "../service/ProductService.h"
+#include "../service/CartService.h"
 
-class ProductController
+class CartController
 {
 private:
-    ProductService service;
+    CartService service;
 
 public:
 
-    ProductController(drogon::orm::DbClientPtr db)
+    CartController(drogon::orm::DbClientPtr db)
         : service(db)
     {
     }
 
+
     // =========================
-    // ADD PRODUCT
+    // ADD TO CART
     // =========================
 
-    void addProduct(
+    void addToCart(
         const drogon::HttpRequestPtr& req,
         std::function<void(const drogon::HttpResponsePtr&)>&& callback)
     {
-        auto json = req->getJsonObject();
+        auto json =
+            req->getJsonObject();
 
         if (!json ||
-            !json->isMember("name") ||
-            !json->isMember("price") ||
-            !json->isMember("description"))
+            !json->isMember("userId") ||
+            !json->isMember("productId") ||
+            !json->isMember("quantity"))
         {
             Json::Value error;
+
             error["message"] =
-                "name, price and description are required";
+                "userId, productId and quantity are required";
 
             auto response =
                 drogon::HttpResponse::newHttpJsonResponse(error);
 
-            response->setStatusCode(drogon::k400BadRequest);
+            response->setStatusCode(
+                drogon::k400BadRequest);
 
             callback(response);
             return;
         }
 
-        Product product;
+        int userId =
+            (*json)["userId"].asInt();
 
-        product.name =
-            (*json)["name"].asString();
+        int productId =
+            (*json)["productId"].asInt();
 
-        product.price =
-            (*json)["price"].asDouble();
+        int quantity =
+            (*json)["quantity"].asInt();
 
-        product.description =
-            (*json)["description"].asString();
+        if (quantity <= 0)
+        {
+            Json::Value error;
 
-        // ProductService::addProduct has no callback
-        service.addProduct(product);
+            error["message"] =
+                "Quantity must be greater than 0";
+
+            auto response =
+                drogon::HttpResponse::newHttpJsonResponse(error);
+
+            response->setStatusCode(
+                drogon::k400BadRequest);
+
+            callback(response);
+            return;
+        }
+
+        // CartService::addToCart has no callback
+        service.addToCart(
+            userId,
+            productId,
+            quantity
+        );
 
         Json::Value result;
+
         result["message"] =
-            "Product added successfully";
+            "Product added to cart successfully";
 
         auto response =
             drogon::HttpResponse::newHttpJsonResponse(result);
@@ -69,62 +93,22 @@ public:
 
 
     // =========================
-    // GET ALL PRODUCTS
+    // GET CART
     // =========================
 
-    void getAllProducts(
+    void getCart(
         const drogon::HttpRequestPtr& req,
         std::function<void(const drogon::HttpResponsePtr&)>&& callback)
     {
-        service.getAllProducts(
-            [callback](const drogon::orm::Result& result)
-            {
-                Json::Value products(Json::arrayValue);
+        std::string userIdString =
+            req->getParameter("userId");
 
-                for (const auto& row : result)
-                {
-                    Json::Value product;
-
-                    product["id"] =
-                        row["id"].as<int>();
-
-                    product["name"] =
-                        row["name"].as<std::string>();
-
-                    product["price"] =
-                        row["price"].as<double>();
-
-                    product["description"] =
-                        row["description"].as<std::string>();
-
-                    products.append(product);
-                }
-
-                auto response =
-                    drogon::HttpResponse::newHttpJsonResponse(
-                        products);
-
-                callback(response);
-            });
-    }
-
-
-    // =========================
-    // SEARCH PRODUCTS
-    // =========================
-
-    void searchProducts(
-        const drogon::HttpRequestPtr& req,
-        std::function<void(const drogon::HttpResponsePtr&)>&& callback)
-    {
-        std::string keyword =
-            req->getParameter("keyword");
-
-        if (keyword.empty())
+        if (userIdString.empty())
         {
             Json::Value error;
+
             error["message"] =
-                "keyword is required";
+                "userId is required";
 
             auto response =
                 drogon::HttpResponse::newHttpJsonResponse(error);
@@ -136,79 +120,126 @@ public:
             return;
         }
 
-        service.searchProducts(
-            keyword,
-            [callback](const drogon::orm::Result& result)
-            {
-                Json::Value products(Json::arrayValue);
-
-                for (const auto& row : result)
-                {
-                    Json::Value product;
-
-                    product["id"] =
-                        row["id"].as<int>();
-
-                    product["name"] =
-                        row["name"].as<std::string>();
-
-                    product["price"] =
-                        row["price"].as<double>();
-
-                    product["description"] =
-                        row["description"].as<std::string>();
-
-                    products.append(product);
-                }
-
-                auto response =
-                    drogon::HttpResponse::newHttpJsonResponse(
-                        products);
-
-                callback(response);
-            });
-    }
-
-
-    // =========================
-    // UPDATE PRODUCT
-    // =========================
-
-    void updateProduct(
-        const drogon::HttpRequestPtr& req,
-        std::function<void(const drogon::HttpResponsePtr&)>&& callback)
-    {
-        std::string productIdString =
-            req->getParameter("productId");
-
-        if (productIdString.empty())
-        {
-            Json::Value error;
-            error["message"] =
-                "productId is required";
-
-            auto response =
-                drogon::HttpResponse::newHttpJsonResponse(error);
-
-            response->setStatusCode(
-                drogon::k400BadRequest);
-
-            callback(response);
-            return;
-        }
-
-        int productId;
+        int userId;
 
         try
         {
-            productId =
-                std::stoi(productIdString);
+            userId =
+                std::stoi(userIdString);
         }
         catch (...)
         {
             Json::Value error;
+
             error["message"] =
-                "Invalid productId";
+                "Invalid userId";
+
+            auto response =
+                drogon::HttpResponse::newHttpJsonResponse(error);
+
+            response->setStatusCode(
+                drogon::k400BadRequest);
+
+            callback(response);
+            return;
+        }
+
+        service.getCart(
+            userId,
+
+            [callback](const drogon::orm::Result& result)
+            {
+                Json::Value cart;
+
+                Json::Value items(
+                    Json::arrayValue);
+
+                double grandTotal = 0.0;
+
+                for (const auto& row : result)
+                {
+                    Json::Value item;
+
+                    item["id"] =
+                        row["id"].as<int>();
+
+                    item["productId"] =
+                        row["product_id"].as<int>();
+
+                    item["name"] =
+                        row["name"].as<std::string>();
+
+                    item["price"] =
+                        row["price"].as<double>();
+
+                    item["quantity"] =
+                        row["quantity"].as<int>();
+
+                    item["total"] =
+                        row["total"].as<double>();
+
+                    grandTotal +=
+                        row["total"].as<double>();
+
+                    items.append(item);
+                }
+
+                cart["items"] =
+                    items;
+
+                cart["grandTotal"] =
+                    grandTotal;
+
+                auto response =
+                    drogon::HttpResponse::newHttpJsonResponse(
+                        cart);
+
+                callback(response);
+            });
+    }
+
+
+    // =========================
+    // UPDATE CART
+    // =========================
+
+    void updateCart(
+        const drogon::HttpRequestPtr& req,
+        std::function<void(const drogon::HttpResponsePtr&)>&& callback)
+    {
+        std::string cartIdString =
+            req->getParameter("cartId");
+
+        if (cartIdString.empty())
+        {
+            Json::Value error;
+
+            error["message"] =
+                "cartId is required";
+
+            auto response =
+                drogon::HttpResponse::newHttpJsonResponse(error);
+
+            response->setStatusCode(
+                drogon::k400BadRequest);
+
+            callback(response);
+            return;
+        }
+
+        int cartId;
+
+        try
+        {
+            cartId =
+                std::stoi(cartIdString);
+        }
+        catch (...)
+        {
+            Json::Value error;
+
+            error["message"] =
+                "Invalid cartId";
 
             auto response =
                 drogon::HttpResponse::newHttpJsonResponse(error);
@@ -224,13 +255,12 @@ public:
             req->getJsonObject();
 
         if (!json ||
-            !json->isMember("name") ||
-            !json->isMember("price") ||
-            !json->isMember("description"))
+            !json->isMember("quantity"))
         {
             Json::Value error;
+
             error["message"] =
-                "name, price and description are required";
+                "quantity is required";
 
             auto response =
                 drogon::HttpResponse::newHttpJsonResponse(error);
@@ -242,23 +272,29 @@ public:
             return;
         }
 
-        Product product;
+        int quantity =
+            (*json)["quantity"].asInt();
 
-        product.id =
-            productId;
+        if (quantity <= 0)
+        {
+            Json::Value error;
 
-        product.name =
-            (*json)["name"].asString();
+            error["message"] =
+                "Quantity must be greater than 0";
 
-        product.price =
-            (*json)["price"].asDouble();
+            auto response =
+                drogon::HttpResponse::newHttpJsonResponse(error);
 
-        product.description =
-            (*json)["description"].asString();
+            response->setStatusCode(
+                drogon::k400BadRequest);
 
-        service.updateProduct(
-            productId,
-            product,
+            callback(response);
+            return;
+        }
+
+        service.updateCart(
+            cartId,
+            quantity,
 
             [callback](bool success)
             {
@@ -267,7 +303,7 @@ public:
                 if (success)
                 {
                     result["message"] =
-                        "Product updated successfully";
+                        "Cart updated successfully";
 
                     auto response =
                         drogon::HttpResponse::newHttpJsonResponse(
@@ -278,7 +314,7 @@ public:
                 else
                 {
                     result["message"] =
-                        "Failed to update product";
+                        "Failed to update cart";
 
                     auto response =
                         drogon::HttpResponse::newHttpJsonResponse(
@@ -294,21 +330,22 @@ public:
 
 
     // =========================
-    // DELETE PRODUCT
+    // REMOVE FROM CART
     // =========================
 
-    void deleteProduct(
+    void removeFromCart(
         const drogon::HttpRequestPtr& req,
         std::function<void(const drogon::HttpResponsePtr&)>&& callback)
     {
-        std::string productIdString =
-            req->getParameter("productId");
+        std::string cartIdString =
+            req->getParameter("cartId");
 
-        if (productIdString.empty())
+        if (cartIdString.empty())
         {
             Json::Value error;
+
             error["message"] =
-                "productId is required";
+                "cartId is required";
 
             auto response =
                 drogon::HttpResponse::newHttpJsonResponse(error);
@@ -320,18 +357,19 @@ public:
             return;
         }
 
-        int productId;
+        int cartId;
 
         try
         {
-            productId =
-                std::stoi(productIdString);
+            cartId =
+                std::stoi(cartIdString);
         }
         catch (...)
         {
             Json::Value error;
+
             error["message"] =
-                "Invalid productId";
+                "Invalid cartId";
 
             auto response =
                 drogon::HttpResponse::newHttpJsonResponse(error);
@@ -343,8 +381,8 @@ public:
             return;
         }
 
-        service.deleteProduct(
-            productId,
+        service.removeFromCart(
+            cartId,
 
             [callback](bool success)
             {
@@ -353,7 +391,7 @@ public:
                 if (success)
                 {
                     result["message"] =
-                        "Product deleted successfully";
+                        "Product removed from cart";
 
                     auto response =
                         drogon::HttpResponse::newHttpJsonResponse(
@@ -364,7 +402,7 @@ public:
                 else
                 {
                     result["message"] =
-                        "Failed to delete product";
+                        "Failed to remove product from cart";
 
                     auto response =
                         drogon::HttpResponse::newHttpJsonResponse(
