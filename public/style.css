@@ -1,0 +1,177 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f2f5f7;
+
+    min-height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-container {
+    width: 100%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-card {
+    width: 380px;
+
+    background: white;
+
+    padding: 40px;
+
+    border-radius: 15px;
+
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.login-card h1 {
+    text-align: center;
+
+    color: #2e7d32;
+
+    margin-bottom: 10px;
+}
+
+.welcome {
+    text-align: center;
+
+    color: #777;
+
+    margin-bottom: 25px;
+}
+
+label {
+    display: block;
+
+    margin-top: 15px;
+    margin-bottom: 7px;
+
+    font-weight: bold;
+}
+
+input {
+    width: 100%;
+
+    padding: 12px;
+
+    border: 1px solid #ccc;
+
+    border-radius: 8px;
+
+    font-size: 15px;
+}
+
+input:focus {
+    outline: none;
+
+    border-color: #2e7d32;
+}
+
+button {
+    width: 100%;
+
+    margin-top: 25px;
+
+    padding: 12px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: #2e7d32;
+
+    color: white;
+
+    font-size: 16px;
+
+    cursor: pointer;
+}
+
+button:hover {
+    background: #256628;
+}
+
+#message {
+    text-align: center;
+
+    margin-top: 20px;
+
+    font-weight: bold;
+}
+
+.register-text {
+    text-align: center;
+
+    margin-top: 20px;
+
+    color: #666;
+}
+
+.register-text a {
+    color: #2e7d32;
+
+    text-decoration: none;
+
+    font-weight: bold;
+}
+.products-container {
+    width: 90%;
+    max-width: 1000px;
+    margin: 40px auto;
+}
+
+.products-container h1 {
+    text-align: center;
+    color: #2e7d32;
+    margin-bottom: 30px;
+}
+
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.top-bar button {
+    width: auto;
+    margin-top: 0;
+    padding: 10px 20px;
+}
+
+#productsList {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.product-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.product-card h3 {
+    color: #2e7d32;
+    margin-bottom: 10px;
+}
+
+.product-card p {
+    margin: 8px 0;
+}
+
+.product-card button {
+    margin-top: 10px;
+}
