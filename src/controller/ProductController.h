@@ -54,7 +54,13 @@ public:
         product.description =
             (*json)["description"].asString();
 
-        // ProductService::addProduct has no callback
+        // Image is optional
+        if (json->isMember("image"))
+        {
+            product.image =
+                (*json)["image"].asString();
+        }
+
         service.addProduct(product);
 
         Json::Value result;
@@ -96,6 +102,9 @@ public:
 
                     product["description"] =
                         row["description"].as<std::string>();
+
+                    product["image"] =
+                        row["image"].as<std::string>();
 
                     products.append(product);
                 }
@@ -158,6 +167,9 @@ public:
                     product["description"] =
                         row["description"].as<std::string>();
 
+                    product["image"] =
+                        row["image"].as<std::string>();
+
                     products.append(product);
                 }
 
@@ -190,8 +202,7 @@ public:
             auto response =
                 drogon::HttpResponse::newHttpJsonResponse(error);
 
-            response->setStatusCode(
-                drogon::k400BadRequest);
+            response->setStatusCode(drogon::k400BadRequest);
 
             callback(response);
             return;
@@ -213,8 +224,7 @@ public:
             auto response =
                 drogon::HttpResponse::newHttpJsonResponse(error);
 
-            response->setStatusCode(
-                drogon::k400BadRequest);
+            response->setStatusCode(drogon::k400BadRequest);
 
             callback(response);
             return;
@@ -235,8 +245,7 @@ public:
             auto response =
                 drogon::HttpResponse::newHttpJsonResponse(error);
 
-            response->setStatusCode(
-                drogon::k400BadRequest);
+            response->setStatusCode(drogon::k400BadRequest);
 
             callback(response);
             return;
@@ -255,6 +264,13 @@ public:
 
         product.description =
             (*json)["description"].asString();
+
+        // Image is optional
+        if (json->isMember("image"))
+        {
+            product.image =
+                (*json)["image"].asString();
+        }
 
         service.updateProduct(
             productId,
@@ -313,8 +329,7 @@ public:
             auto response =
                 drogon::HttpResponse::newHttpJsonResponse(error);
 
-            response->setStatusCode(
-                drogon::k400BadRequest);
+            response->setStatusCode(drogon::k400BadRequest);
 
             callback(response);
             return;
@@ -336,8 +351,7 @@ public:
             auto response =
                 drogon::HttpResponse::newHttpJsonResponse(error);
 
-            response->setStatusCode(
-                drogon::k400BadRequest);
+            response->setStatusCode(drogon::k400BadRequest);
 
             callback(response);
             return;

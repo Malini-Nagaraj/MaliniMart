@@ -24,8 +24,9 @@ public:
     void addProduct(const Product& product)
     {
         dbClient->execSqlAsync(
-            "INSERT INTO products (name, price, description) "
-            "VALUES ($1, $2, $3)",
+            "INSERT INTO products "
+            "(name, price, description, image) "
+            "VALUES ($1, $2, $3, $4)",
 
             [](const drogon::orm::Result& result)
             {
@@ -44,7 +45,8 @@ public:
 
             product.name,
             product.price,
-            product.description
+            product.description,
+            product.image
         );
     }
 
@@ -57,7 +59,7 @@ public:
         std::function<void(const drogon::orm::Result&)>&& callback)
     {
         dbClient->execSqlAsync(
-            "SELECT id, name, price, description "
+            "SELECT id, name, price, description, image "
             "FROM products "
             "ORDER BY id",
 
@@ -86,7 +88,7 @@ public:
         std::function<void(const drogon::orm::Result&)>&& callback)
     {
         dbClient->execSqlAsync(
-            "SELECT id, name, price, description "
+            "SELECT id, name, price, description, image "
             "FROM products "
             "WHERE LOWER(name) LIKE LOWER($1) "
             "OR LOWER(description) LIKE LOWER($1) "
@@ -121,8 +123,8 @@ public:
     {
         dbClient->execSqlAsync(
             "UPDATE products "
-            "SET name = $1, price = $2, description = $3 "
-            "WHERE id = $4",
+            "SET name = $1, price = $2, description = $3, image = $4 "
+            "WHERE id = $5",
 
             [callback](const drogon::orm::Result& result)
             {
@@ -142,6 +144,7 @@ public:
             product.name,
             product.price,
             product.description,
+            product.image,
             id
         );
     }
