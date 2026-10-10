@@ -1,4 +1,6 @@
 #include <drogon/drogon.h>
+#include <cstdlib>
+#include <string>
 
 #include "controller/UserController.h"
 #include "controller/ProductController.h"
@@ -19,14 +21,18 @@ int main()
     // ==============================
     // 2. PostgreSQL connection
     // ==============================
-    auto dbClient = drogon::orm::DbClient::newPgClient(
-        "host=127.0.0.1 "
-        "port=5432 "
-        "dbname=malinimart "
-        "user=postgres "
-        "password=Malini@2026",
-                1
-    );
+   const char* databaseUrl = std::getenv("DATABASE_URL");
+
+if (databaseUrl == nullptr || std::string(databaseUrl).empty())
+{
+    std::cerr << "DATABASE_URL is missing!" << std::endl;
+    return 1;
+}
+
+auto dbClient = drogon::orm::DbClient::newPgClient(
+    databaseUrl,
+    1
+);
 
     if (!dbClient)
     {
@@ -263,8 +269,13 @@ int main()
     // ==============================
     // 18. IMPORTANT: PORT 8080
     // ==============================
-    drogon::app().addListener("0.0.0.0", 8080);
+    const char* portEnv = std::getenv("PORT");
 
+const uint16_t port = portEnv
+    ? static_cast<uint16_t>(std::stoi(portEnv))
+    : 8080;
+
+drogon::app().addListener("0.0.0.0", port);
     std::cout << "Starting MaliniMart..." << std::endl;
     std::cout << "Open: http://localhost:8080" << std::endl;
 
