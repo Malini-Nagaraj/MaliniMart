@@ -1,4 +1,11 @@
-build/
-*.exe
 
+
+build/
+Login.exe
+*.exe
+*.dll
+*.pdb
+.vs/
+.vscode/
+.env
 config.json

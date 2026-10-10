@@ -1,6 +1,4 @@
 #include <drogon/drogon.h>
-#include <iostream>
-#include <memory>
 
 #include "controller/UserController.h"
 #include "controller/ProductController.h"
@@ -11,456 +9,271 @@
 
 int main()
 {
-    // Serve frontend files from the public folder
+    // ==============================
+    // 1. Frontend folder
+    // ==============================
     drogon::app().setDocumentRoot("./public");
+    drogon::app().enableSession(3600);
+    
 
-    // Load PostgreSQL configuration
-    drogon::app().loadConfigFile("config.json");
+    // ==============================
+    // 2. PostgreSQL connection
+    // ==============================
+    auto dbClient = drogon::orm::DbClient::newPgClient(
+        "host=127.0.0.1 "
+        "port=5432 "
+        "dbname=malinimart "
+        "user=postgres "
+        "password=Malini@2026",
+                1
+    );
 
-    std::cout << "Config loaded" << std::endl;
+    if (!dbClient)
+    {
+        std::cout << "Database client creation failed!" << std::endl;
+        return 1;
+    }
 
+    std::cout << "Database client created successfully!" << std::endl;
 
-    // =========================================================
-    // FRONTEND - LOGIN PAGE
-    // =========================================================
+    // ==============================
+    // 3. Controllers
+    // ==============================
+    UserController userController(dbClient);
+    ProductController productController(dbClient);
+    CartController cartController(dbClient);
+    OrderController orderController(dbClient);
+    AdminController adminController(dbClient);
+    ReviewController reviewController(dbClient);
 
+    // ==============================
+    // 4. USER REGISTER
+    // ==============================
+    drogon::app().registerHandler(
+        "/users/register",
+        [&userController](
+            const drogon::HttpRequestPtr& req,
+            std::function<void(const drogon::HttpResponsePtr&)>&& callback)
+        {
+            userController.registerUser(req, std::move(callback));
+        },
+        {drogon::Post}
+    );
+
+    // ==============================
+    // 5. USER LOGIN
+    // ==============================
+    drogon::app().registerHandler(
+        "/users/login",
+        [&userController](
+            const drogon::HttpRequestPtr& req,
+            std::function<void(const drogon::HttpResponsePtr&)>&& callback)
+        {
+            userController.loginUser(req, std::move(callback));
+        },
+        {drogon::Post}
+    );
+
+    // ==============================
+    // 6. GET PRODUCTS
+    // ==============================
+    drogon::app().registerHandler(
+        "/products",
+        [&productController](
+            const drogon::HttpRequestPtr& req,
+            std::function<void(const drogon::HttpResponsePtr&)>&& callback)
+        {
+            productController.getAllProducts(req, std::move(callback));
+        },
+        {drogon::Get}
+    );
+
+    // ==============================
+    // 7. SEARCH PRODUCTS
+    // ==============================
+    drogon::app().registerHandler(
+        "/products/search",
+        [&productController](
+            const drogon::HttpRequestPtr& req,
+            std::function<void(const drogon::HttpResponsePtr&)>&& callback)
+        {
+            productController.searchProducts(req, std::move(callback));
+        },
+        {drogon::Get}
+    );
+
+    // ==============================
+    // 8. ADD PRODUCT
+    // ==============================
+    drogon::app().registerHandler(
+        "/products/add",
+        [&productController](
+            const drogon::HttpRequestPtr& req,
+            std::function<void(const drogon::HttpResponsePtr&)>&& callback)
+        {
+            productController.addProduct(req, std::move(callback));
+        },
+        {drogon::Post}
+    );
+
+    // ==============================
+    // 9. UPDATE PRODUCT
+    // ==============================
+    drogon::app().registerHandler(
+        "/products/update",
+        [&productController](
+            const drogon::HttpRequestPtr& req,
+            std::function<void(const drogon::HttpResponsePtr&)>&& callback)
+        {
+            productController.updateProduct(req, std::move(callback));
+        },
+        {drogon::Put}
+    );
+
+    // ==============================
+    // 10. DELETE PRODUCT
+    // ==============================
+    drogon::app().registerHandler(
+        "/products/delete",
+        [&productController](
+            const drogon::HttpRequestPtr& req,
+            std::function<void(const drogon::HttpResponsePtr&)>&& callback)
+        {
+            productController.deleteProduct(req, std::move(callback));
+        },
+        {drogon::Delete}
+    );
+
+    // ==============================
+    // 11. ADD TO CART
+    // ==============================
+    drogon::app().registerHandler(
+        "/cart/add",
+        [&cartController](
+            const drogon::HttpRequestPtr& req,
+            std::function<void(const drogon::HttpResponsePtr&)>&& callback)
+        {
+            cartController.addToCart(req, std::move(callback));
+        },
+        {drogon::Post}
+    );
+
+    // ==============================
+    // 12. GET CART
+    // ==============================
+    drogon::app().registerHandler(
+        "/cart",
+        [&cartController](
+            const drogon::HttpRequestPtr& req,
+            std::function<void(const drogon::HttpResponsePtr&)>&& callback)
+        {
+            cartController.getCart(req, std::move(callback));
+        },
+        {drogon::Get}
+    );
+
+    // ==============================
+    // 13. UPDATE CART
+    // ==============================
+    drogon::app().registerHandler(
+        "/cart/update",
+        [&cartController](
+            const drogon::HttpRequestPtr& req,
+            std::function<void(const drogon::HttpResponsePtr&)>&& callback)
+        {
+            cartController.updateCart(req, std::move(callback));
+        },
+        {drogon::Put}
+    );
+
+    // ==============================
+    // 14. REMOVE FROM CART
+    // ==============================
+    drogon::app().registerHandler(
+        "/cart/remove",
+        [&cartController](
+            const drogon::HttpRequestPtr& req,
+            std::function<void(const drogon::HttpResponsePtr&)>&& callback)
+        {
+            cartController.removeFromCart(req, std::move(callback));
+        },
+        {drogon::Delete}
+    );
+
+    // ==============================
+    // 15. CREATE ORDER
+    // ==============================
+    drogon::app().registerHandler(
+        "/orders/create",
+        [&orderController](
+            const drogon::HttpRequestPtr& req,
+            std::function<void(const drogon::HttpResponsePtr&)>&& callback)
+        {
+            orderController.createOrder(req, std::move(callback));
+        },
+        {drogon::Post}
+    );
+
+    // ==============================
+    // 16. GET ORDERS
+    // ==============================
+    drogon::app().registerHandler(
+        "/orders",
+        [&orderController](
+            const drogon::HttpRequestPtr& req,
+            std::function<void(const drogon::HttpResponsePtr&)>&& callback)
+        {
+            orderController.getOrders(req, std::move(callback));
+        },
+        {drogon::Get}
+    );
+    
+    // ==============================
+    // ADMIN: GET USERS
+    // ==============================
+    drogon::app().registerHandler(
+        "/admin/users",
+        [&adminController](
+            const drogon::HttpRequestPtr& req,
+            std::function<void(const drogon::HttpResponsePtr&)>&& callback)
+        {
+            adminController.getUsers(req, std::move(callback));
+        },
+        {drogon::Get}
+    );
+
+    // ==============================
+    // 17. HOME PAGE
+    // ==============================
     drogon::app().registerHandler(
         "/",
-        [](const drogon::HttpRequestPtr& req,
+        [](const drogon::HttpRequestPtr&,
            std::function<void(const drogon::HttpResponsePtr&)>&& callback)
         {
             auto response =
                 drogon::HttpResponse::newFileResponse(
-                    "./public/index.html");
+                    "./public/index.html"
+                );
 
             callback(response);
         },
         {drogon::Get}
     );
 
+    // ==============================
+    // 18. IMPORTANT: PORT 8080
+    // ==============================
+    drogon::app().addListener("0.0.0.0", 8080);
 
-    // =========================================================
-    // USER REGISTER
-    // =========================================================
-
-    drogon::app().registerHandler(
-        "/users/register",
-        [](const drogon::HttpRequestPtr& req,
-           std::function<void(const drogon::HttpResponsePtr&)>&& callback)
-        {
-            UserController controller(
-                drogon::app().getDbClient("default"));
-
-            controller.registerUser(
-                req,
-                std::move(callback));
-        },
-        {drogon::Post}
-    );
-
-
-    // =========================================================
-    // USER LOGIN
-    // =========================================================
-
-    drogon::app().registerHandler(
-        "/users/login",
-        [](const drogon::HttpRequestPtr& req,
-           std::function<void(const drogon::HttpResponsePtr&)>&& callback)
-        {
-            UserController controller(
-                drogon::app().getDbClient("default"));
-
-            controller.loginUser(
-                req,
-                std::move(callback));
-        },
-        {drogon::Post}
-    );
-
-
-    // =========================================================
-    // ADD PRODUCT
-    // =========================================================
-
-    drogon::app().registerHandler(
-        "/products/add",
-        [](const drogon::HttpRequestPtr& req,
-           std::function<void(const drogon::HttpResponsePtr&)>&& callback)
-        {
-            ProductController controller(
-                drogon::app().getDbClient("default"));
-
-            controller.addProduct(
-                req,
-                std::move(callback));
-        },
-        {drogon::Post}
-    );
-
-
-    // =========================================================
-    // GET ALL PRODUCTS
-    // =========================================================
-
-    drogon::app().registerHandler(
-        "/products",
-        [](const drogon::HttpRequestPtr& req,
-           std::function<void(const drogon::HttpResponsePtr&)>&& callback)
-        {
-            ProductController controller(
-                drogon::app().getDbClient("default"));
-
-            controller.getAllProducts(
-                req,
-                std::move(callback));
-        },
-        {drogon::Get}
-    );
-
-
-    // =========================================================
-    // SEARCH PRODUCTS
-    // =========================================================
-
-    drogon::app().registerHandler(
-        "/products/search",
-        [](const drogon::HttpRequestPtr& req,
-           std::function<void(const drogon::HttpResponsePtr&)>&& callback)
-        {
-            ProductController controller(
-                drogon::app().getDbClient("default"));
-
-            controller.searchProducts(
-                req,
-                std::move(callback));
-        },
-        {drogon::Get}
-    );
-
-
-    // =========================================================
-    // UPDATE PRODUCT
-    // =========================================================
-
-    drogon::app().registerHandler(
-        "/products/update",
-        [](const drogon::HttpRequestPtr& req,
-           std::function<void(const drogon::HttpResponsePtr&)>&& callback)
-        {
-            ProductController controller(
-                drogon::app().getDbClient("default"));
-
-            controller.updateProduct(
-                req,
-                std::move(callback));
-        },
-        {drogon::Put}
-    );
-
-
-    // =========================================================
-    // DELETE PRODUCT
-    // =========================================================
-
-    drogon::app().registerHandler(
-        "/products/delete",
-        [](const drogon::HttpRequestPtr& req,
-           std::function<void(const drogon::HttpResponsePtr&)>&& callback)
-        {
-            ProductController controller(
-                drogon::app().getDbClient("default"));
-
-            controller.deleteProduct(
-                req,
-                std::move(callback));
-        },
-        {drogon::Delete}
-    );
-
-
-    // =========================================================
-    // ADD TO CART
-    // =========================================================
-
-    drogon::app().registerHandler(
-        "/cart/add",
-        [](const drogon::HttpRequestPtr& req,
-           std::function<void(const drogon::HttpResponsePtr&)>&& callback)
-        {
-            CartController controller(
-                drogon::app().getDbClient("default"));
-
-            controller.addToCart(
-                req,
-                std::move(callback));
-        },
-        {drogon::Post}
-    );
-
-
-    // =========================================================
-    // GET CART
-    // =========================================================
-
-    drogon::app().registerHandler(
-        "/cart",
-        [](const drogon::HttpRequestPtr& req,
-           std::function<void(const drogon::HttpResponsePtr&)>&& callback)
-        {
-            CartController controller(
-                drogon::app().getDbClient("default"));
-
-            controller.getCart(
-                req,
-                std::move(callback));
-        },
-        {drogon::Get}
-    );
-
-
-    // =========================================================
-    // UPDATE CART
-    // =========================================================
-
-    drogon::app().registerHandler(
-        "/cart/update",
-        [](const drogon::HttpRequestPtr& req,
-           std::function<void(const drogon::HttpResponsePtr&)>&& callback)
-        {
-            CartController controller(
-                drogon::app().getDbClient("default"));
-
-            controller.updateCart(
-                req,
-                std::move(callback));
-        },
-        {drogon::Put}
-    );
-
-
-    // =========================================================
-    // REMOVE FROM CART
-    // =========================================================
-
-    drogon::app().registerHandler(
-        "/cart/remove",
-        [](const drogon::HttpRequestPtr& req,
-           std::function<void(const drogon::HttpResponsePtr&)>&& callback)
-        {
-            CartController controller(
-                drogon::app().getDbClient("default"));
-
-            controller.removeFromCart(
-                req,
-                std::move(callback));
-        },
-        {drogon::Delete}
-    );
-
-
-    // =========================================================
-    // CREATE ORDER
-    // =========================================================
-
-    drogon::app().registerHandler(
-        "/orders",
-        [](const drogon::HttpRequestPtr& req,
-           std::function<void(const drogon::HttpResponsePtr&)>&& callback)
-        {
-            OrderController controller(
-                drogon::app().getDbClient("default"));
-
-            controller.createOrder(
-                req,
-                std::move(callback));
-        },
-        {drogon::Post}
-    );
-
-
-    // =========================================================
-    // CHECKOUT
-    // =========================================================
-
-    drogon::app().registerHandler(
-        "/checkout",
-        [](const drogon::HttpRequestPtr& req,
-           std::function<void(const drogon::HttpResponsePtr&)>&& callback)
-        {
-            auto controller =
-                std::make_shared<OrderController>(
-                    drogon::app().getDbClient("default"));
-
-            controller->checkout(
-                req,
-                [controller,
-                 callback = std::move(callback)]
-                (const drogon::HttpResponsePtr& response)
-                {
-                    callback(response);
-                }
-            );
-        },
-        {drogon::Post}
-    );
-
-
-    // =========================================================
-    // BUYER ORDER HISTORY
-    // =========================================================
-
-    drogon::app().registerHandler(
-        "/orders/history",
-        [](const drogon::HttpRequestPtr& req,
-           std::function<void(const drogon::HttpResponsePtr&)>&& callback)
-        {
-            OrderController controller(
-                drogon::app().getDbClient("default"));
-
-            controller.getOrders(
-                req,
-                std::move(callback));
-        },
-        {drogon::Get}
-    );
-
-
-    // =========================================================
-    // SELLER ORDERS
-    // =========================================================
-
-    drogon::app().registerHandler(
-        "/seller/orders",
-        [](const drogon::HttpRequestPtr& req,
-           std::function<void(const drogon::HttpResponsePtr&)>&& callback)
-        {
-            OrderController controller(
-                drogon::app().getDbClient("default"));
-
-            controller.getSellerOrders(
-                req,
-                std::move(callback));
-        },
-        {drogon::Get}
-    );
-
-
-    // =========================================================
-    // ADMIN - ALL USERS
-    // =========================================================
-
-    drogon::app().registerHandler(
-        "/admin/users",
-        [](const drogon::HttpRequestPtr& req,
-           std::function<void(const drogon::HttpResponsePtr&)>&& callback)
-        {
-            AdminController controller(
-                drogon::app().getDbClient("default"));
-
-            controller.getAllUsers(
-                req,
-                std::move(callback));
-        },
-        {drogon::Get}
-    );
-
-
-    // =========================================================
-    // ADMIN - ALL ORDERS
-    // =========================================================
-
-    drogon::app().registerHandler(
-        "/admin/orders",
-        [](const drogon::HttpRequestPtr& req,
-           std::function<void(const drogon::HttpResponsePtr&)>&& callback)
-        {
-            AdminController controller(
-                drogon::app().getDbClient("default"));
-
-            controller.getAllOrders(
-                req,
-                std::move(callback));
-        },
-        {drogon::Get}
-    );
-
-
-    // =========================================================
-    // ADMIN - DELETE PRODUCT
-    // =========================================================
-
-    drogon::app().registerHandler(
-        "/admin/products",
-        [](const drogon::HttpRequestPtr& req,
-           std::function<void(const drogon::HttpResponsePtr&)>&& callback)
-        {
-            AdminController controller(
-                drogon::app().getDbClient("default"));
-
-            controller.deleteProduct(
-                req,
-                std::move(callback));
-        },
-        {drogon::Delete}
-    );
-
-
-    // =========================================================
-    // ADD REVIEW
-    // =========================================================
-
-    drogon::app().registerHandler(
-        "/reviews/add",
-        [](const drogon::HttpRequestPtr& req,
-           std::function<void(const drogon::HttpResponsePtr&)>&& callback)
-        {
-            ReviewController controller(
-                drogon::app().getDbClient("default"));
-
-            controller.addReview(
-                req,
-                std::move(callback));
-        },
-        {drogon::Post}
-    );
-
-
-    // =========================================================
-    // GET REVIEWS
-    // =========================================================
-
-    drogon::app().registerHandler(
-        "/reviews",
-        [](const drogon::HttpRequestPtr& req,
-           std::function<void(const drogon::HttpResponsePtr&)>&& callback)
-        {
-            ReviewController controller(
-                drogon::app().getDbClient("default"));
-
-            controller.getProductReviews(
-                req,
-                std::move(callback));
-        },
-        {drogon::Get}
-    );
-
-
-    // =========================================================
-    // START SERVER
-    // =========================================================
-
-    drogon::app().addListener(
-        "0.0.0.0",
-        8080
-    );
-
-    std::cout << "Listener added" << std::endl;
     std::cout << "Starting MaliniMart..." << std::endl;
+    std::cout << "Open: http://localhost:8080" << std::endl;
+
+    // ==============================
+    // 19. START SERVER
+    // ==============================
+    std::cout << "ADMIN ROUTE REGISTERED" << std::endl;
 
     drogon::app().run();
-
-    std::cout << "Server stopped" << std::endl;
 
     return 0;
 }

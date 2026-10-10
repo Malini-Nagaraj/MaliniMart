@@ -1,189 +1,111 @@
+
 #pragma once
 
+
+
+#include <iostream>
+
 #include <drogon/drogon.h>
+#include <functional>
+#include <memory>
 #include <string>
-#include "../service/AdminService.h"
 
 class AdminController
 {
 private:
-    AdminService service;
+    drogon::orm::DbClientPtr dbClient;
 
 public:
-
-    AdminController(drogon::orm::DbClientPtr db)
-        : service(db)
+    explicit AdminController(
+        const drogon::orm::DbClientPtr& db)
+        : dbClient(db)
     {
     }
 
-    // ==========================================
-    // GET ALL USERS
-    // ==========================================
-    void getAllUsers(
+    void getUsers(
         const drogon::HttpRequestPtr& req,
         std::function<void(const drogon::HttpResponsePtr&)>&& callback)
     {
-        service.getAllUsers(
-            [callback](const drogon::orm::Result& result)
-            {
-                Json::Value users(Json::arrayValue);
+        // Check login session
+        auto session = req->getSession();
+        auto userId = session->getOptional<int>("user_id");
 
-                for (const auto& row : result)
-                {
-                    Json::Value user;
 
-                    user["id"] =
-                        row["id"].as<int>();
+        std::cout << "ADMIN SESSION USER ID: "
+          << (userId ? std::to_string(*userId) : "MISSING")
+          << std::endl;
 
-                    user["name"] =
-                        row["name"].as<std::string>();
-
-                    user["email"] =
-                        row["email"].as<std::string>();
-
-                    user["role"] =
-                        row["role"].as<std::string>();
-
-                    users.append(user);
-                }
-
-                auto response =
-                    drogon::HttpResponse::newHttpJsonResponse(users);
-
-                callback(response);
-            });
-    }
-
-    // ==========================================
-    // GET ALL ORDERS
-    // ==========================================
-    void getAllOrders(
-        const drogon::HttpRequestPtr& req,
-        std::function<void(const drogon::HttpResponsePtr&)>&& callback)
-    {
-        service.getAllOrders(
-            [callback](const drogon::orm::Result& result)
-            {
-                Json::Value orders(Json::arrayValue);
-
-                for (const auto& row : result)
-                {
-                    Json::Value order;
-
-                    order["orderId"] =
-                        row["order_id"].as<int>();
-
-                    order["userId"] =
-                        row["user_id"].as<int>();
-
-                    order["userName"] =
-                        row["user_name"].as<std::string>();
-
-                    order["email"] =
-                        row["email"].as<std::string>();
-
-                    order["totalAmount"] =
-                        row["total_amount"].as<double>();
-
-                    order["status"] =
-                        row["status"].as<std::string>();
-
-                    order["createdAt"] =
-                        row["created_at"].as<std::string>();
-
-                    orders.append(order);
-                }
-
-                auto response =
-                    drogon::HttpResponse::newHttpJsonResponse(orders);
-
-                callback(response);
-            });
-    }
-
-    // ==========================================
-    // DELETE PRODUCT
-    // ==========================================
-    void deleteProduct(
-        const drogon::HttpRequestPtr& req,
-        std::function<void(const drogon::HttpResponsePtr&)>&& callback)
-    {
-        auto productIdString =
-            req->getParameter("productId");
-
-        if (productIdString.empty())
+        if (!userId)
         {
-            Json::Value errorJson;
-
-            errorJson["message"] =
-                "productId is required";
-
-            auto response =
-                drogon::HttpResponse::newHttpJsonResponse(
-                    errorJson);
-
-            response->setStatusCode(
-                drogon::k400BadRequest);
-
+            auto response = drogon::HttpResponse::newHttpResponse();
+            response->setStatusCode(drogon::k401Unauthorized);
+            response->setBody("Please log in first.");
             callback(response);
             return;
         }
 
-        int productId;
+        auto cb = std::make_shared<
+            std::function<void(const drogon::HttpResponsePtr&)>>(
+                std::move(callback));
 
-        try
-        {
-            productId = std::stoi(productIdString);
-        }
-        catch (...)
-        {
-            Json::Value errorJson;
+        // Verify the logged-in user's role in the database
+        dbClient->execSqlAsync(
+            "SELECT role FROM users WHERE id = $1",
 
-            errorJson["message"] =
-                "Invalid productId";
-
-            auto response =
-                drogon::HttpResponse::newHttpJsonResponse(
-                    errorJson);
-
-            response->setStatusCode(
-                drogon::k400BadRequest);
-
-            callback(response);
-            return;
-        }
-
-        service.deleteProduct(
-            productId,
-            [callback](bool success)
+            [this, cb](const drogon::orm::Result& result)
             {
-                Json::Value responseJson;
-
-                if (success)
+                if (result.empty() ||
+                    result[0]["role"].as<std::string>() != "Admin")
                 {
-                    responseJson["message"] =
-                        "Product deleted successfully";
-
-                    auto response =
-                        drogon::HttpResponse::newHttpJsonResponse(
-                            responseJson);
-
-                    callback(response);
+                    auto response = drogon::HttpResponse::newHttpResponse();
+                    response->setStatusCode(drogon::k403Forbidden);
+                    response->setBody("Admin access only.");
+                    (*cb)(response);
+                    return;
                 }
-                else
-                {
-                    responseJson["message"] =
-                        "Failed to delete product";
 
-                    auto response =
-                        drogon::HttpResponse::newHttpJsonResponse(
-                            responseJson);
+                // Only an Admin can retrieve the user list
+                dbClient->execSqlAsync(
+                    "SELECT id, name, email, role "
+                    "FROM users ORDER BY id",
 
-                    response->setStatusCode(
-                        drogon::k500InternalServerError);
+                    [cb](const drogon::orm::Result& usersResult)
+                    {
+                        Json::Value users(Json::arrayValue);
 
-                    callback(response);
-                }
-            });
+                        for (const auto& row : usersResult)
+                        {
+                            Json::Value user;
+                            user["id"] = row["id"].as<int>();
+                            user["name"] = row["name"].as<std::string>();
+                            user["email"] = row["email"].as<std::string>();
+                            user["role"] = row["role"].as<std::string>();
+                            users.append(user);
+                        }
+
+                        (*cb)(
+                            drogon::HttpResponse::newHttpJsonResponse(users));
+                    },
+
+                    [cb](const drogon::orm::DrogonDbException&)
+                    {
+                        auto response =
+                            drogon::HttpResponse::newHttpResponse();
+                        response->setStatusCode(
+                            drogon::k500InternalServerError);
+                        response->setBody("Unable to load users.");
+                        (*cb)(response);
+                    });
+            },
+
+            [cb](const drogon::orm::DrogonDbException&)
+            {
+                auto response = drogon::HttpResponse::newHttpResponse();
+                response->setStatusCode(drogon::k500InternalServerError);
+                response->setBody("Unable to verify Admin permissions.");
+                (*cb)(response);
+            },
+
+            *userId);
     }
 };

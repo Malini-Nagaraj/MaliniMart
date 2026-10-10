@@ -7,57 +7,307 @@
 
     <title>MaliniMart - Login</title>
 
-    <link rel="stylesheet" href="style.css">
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+
+            background: linear-gradient(
+                135deg,
+                #8b0000,
+                #dc143c,
+                #ff4b5c
+            );
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-container {
+            width: 100%;
+            min-height: 100vh;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            padding: 20px;
+        }
+
+        .login-box {
+            width: 420px;
+
+            background: white;
+
+            padding: 45px;
+
+            border-radius: 25px;
+
+            text-align: center;
+
+            box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+        }
+
+        .login-icon {
+            width: 80px;
+            height: 80px;
+
+            margin: 0 auto 15px;
+
+            border-radius: 50%;
+
+            background: linear-gradient(
+                135deg,
+                #8b0000,
+                #dc143c
+            );
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            font-size: 40px;
+
+            box-shadow: 0 8px 20px rgba(220,20,60,0.35);
+        }
+
+        .login-box h1 {
+            font-size: 38px;
+
+            color: #b00020;
+
+            margin-bottom: 8px;
+        }
+
+        .welcome {
+            color: #777;
+
+            font-size: 15px;
+
+            margin-bottom: 25px;
+        }
+
+        .login-box label {
+            display: block;
+
+            text-align: left;
+
+            font-weight: bold;
+
+            color: #333;
+
+            margin-top: 15px;
+
+            margin-bottom: 7px;
+        }
+
+        .login-box input {
+            width: 100%;
+
+            padding: 14px 16px;
+
+            border: 2px solid #ddd;
+
+            border-radius: 12px;
+
+            font-size: 16px;
+
+            outline: none;
+        }
+
+        .login-box input:focus {
+            border-color: #dc143c;
+
+            box-shadow: 0 0 10px rgba(220,20,60,0.25);
+        }
+
+        .login-box button {
+            width: 100%;
+
+            margin-top: 25px;
+
+            padding: 14px;
+
+            border: none;
+
+            border-radius: 12px;
+
+            background: linear-gradient(
+                135deg,
+                #8b0000,
+                #dc143c
+            );
+
+            color: white;
+
+            font-size: 17px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+        .login-box button:hover {
+            transform: translateY(-2px);
+
+            box-shadow: 0 10px 25px rgba(139,0,0,0.35);
+        }
+
+        .register-link {
+            margin-top: 22px;
+
+            color: #777;
+
+            font-size: 15px;
+        }
+
+        .register-link a {
+            color: #c00025;
+
+            font-weight: bold;
+
+            text-decoration: none;
+        }
+
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+
+        #message {
+            margin-top: 15px;
+
+            font-weight: bold;
+        }
+
+    </style>
+
 </head>
 
 <body>
 
-    <div class="login-container">
+<div class="login-container">
 
-        <div class="login-card">
+    <div class="login-box">
 
-            <h1>MaliniMart</h1>
-
-            <p class="welcome">Welcome back!</p>
-
-            <form id="loginForm">
-
-                <label>Email</label>
-
-                <input
-                    type="email"
-                    id="email"
-                    placeholder="Enter your email"
-                    required
-                >
-
-                <label>Password</label>
-
-                <input
-                    type="password"
-                    id="password"
-                    placeholder="Enter your password"
-                    required
-                >
-
-                <button type="submit">
-                    Login
-                </button>
-
-            </form>
-
-            <p id="message"></p>
-
-            <p class="register-text">
-                Don't have an account?
-                <a href="register.html">Register</a>
-            </p>
-
+        <div class="login-icon">
+            🛍️
         </div>
+
+        <h1>MaliniMart</h1>
+
+        <p class="welcome">
+            Welcome back! Please login to continue.
+        </p>
+
+        <form id="loginForm">
+
+            <label for="email">
+                Email
+            </label>
+
+            <input
+                type="email"
+                id="email"
+                placeholder="Enter your email"
+                required
+            >
+
+            <label for="password">
+                Password
+            </label>
+
+            <input
+                type="password"
+                id="password"
+                placeholder="123456"
+                required
+            >
+
+            <button type="submit">
+                🔐 Login
+            </button>
+
+        </form>
+
+        <p id="message"></p>
+
+        <p class="register-link">
+            Don't have an account?
+            <a href="register.html">Register</a>
+        </p>
 
     </div>
 
-    <script src="script.js"></script>
+</div>
+
+
+<script>
+document.getElementById("loginForm").addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const message = document.getElementById("message");
+
+    message.style.color = "#333";
+    message.innerText = "Logging in...";
+
+    try {
+
+        const response = await fetch("/users/login", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password
+            })
+        });
+
+        // Backend returns plain text, not JSON
+        const result = await response.text();
+
+        console.log("Login response:", result);
+        console.log("Status:", response.status);
+
+        if (response.ok) {
+
+            message.style.color = "green";
+            message.innerText = "Login successful!";
+
+            setTimeout(function() {
+                window.location.href = "/products.html";
+            }, 700);
+
+        } else {
+
+            message.style.color = "red";
+            message.innerText = result || "Invalid email or password.";
+
+        }
+
+    } catch (error) {
+
+        console.error("Login error:", error);
+
+        message.style.color = "red";
+        message.innerText = "Unable to connect to the server.";
+
+    }
+
+});
+</script>
 
 </body>
 

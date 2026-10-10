@@ -1,7 +1,14 @@
+
 #pragma once
+
+#include <iostream>
 
 #include <drogon/drogon.h>
 #include "../repository/UserRepository.h"
+#include <functional>
+#include <memory>
+#include <string>
+#include <exception>
 
 class UserController
 {
@@ -9,12 +16,11 @@ private:
     UserRepository repository;
 
 public:
-    UserController(drogon::orm::DbClientPtr db)
+    explicit UserController(drogon::orm::DbClientPtr db)
         : repository(db)
     {
     }
 
-    // Register
     void registerUser(
         const drogon::HttpRequestPtr& req,
         std::function<void(const drogon::HttpResponsePtr&)>&& callback)
@@ -28,8 +34,7 @@ public:
         {
             auto response = drogon::HttpResponse::newHttpResponse();
             response->setStatusCode(drogon::k400BadRequest);
-            response->setBody(
-                "Name, email and password are required");
+            response->setBody("Name, email and password are required");
             callback(response);
             return;
         }
@@ -42,11 +47,10 @@ public:
         repository.addUser(user);
 
         auto response = drogon::HttpResponse::newHttpResponse();
-        response->setBody("User registered successfully!");
+        response->setBody("User registration submitted.");
         callback(response);
     }
 
-    // Login
     void loginUser(
         const drogon::HttpRequestPtr& req,
         std::function<void(const drogon::HttpResponsePtr&)>&& callback)
@@ -64,50 +68,66 @@ public:
             return;
         }
 
-        std::string email = (*json)["email"].asString();
-        std::string password = (*json)["password"].asString();
+        const std::string email = (*json)["email"].asString();
+        const std::string password = (*json)["password"].asString();
 
         auto db = repository.getDbClient();
 
+        auto cb = std::make_shared<
+            std::function<void(const drogon::HttpResponsePtr&)>>(
+                std::move(callback));
+
         db->execSqlAsync(
-            "SELECT id, name FROM users "
+            "SELECT id, name, role FROM users "
             "WHERE email = $1 AND password = $2",
-            
-            [callback](const drogon::orm::Result& result)
+
+            [cb, req](const drogon::orm::Result& result)
             {
-                auto response =
-                    drogon::HttpResponse::newHttpResponse();
-
-                if (result.size() > 0)
+                if (result.empty())
                 {
-                    response->setBody(
-                        "Login successful! Welcome " +
-                        result[0]["name"].as<std::string>());
+                    auto response = drogon::HttpResponse::newHttpResponse();
+                    response->setStatusCode(drogon::k401Unauthorized);
+                    response->setBody("Invalid email or password");
+                    (*cb)(response);
+                    return;
                 }
-                else
+
+                try
                 {
+                    const int userId = result[0]["id"].as<int>();
+                    const std::string name =
+                        result[0]["name"].as<std::string>();
+                    const std::string role =
+                        result[0]["role"].as<std::string>();
+                        auto session = req->getSession();
+                         session->insert("user_id", userId);
+                         std::cout << "LOGIN SESSION USER ID: "
+          << session->get<int>("user_id") << std::endl;
+                        session->insert("user_role", role);
+                          session->changeSessionIdToClient();
+
+                    
+                    auto response = drogon::HttpResponse::newHttpResponse();
+                    response->setBody("Login successful! Welcome " + name);
+                    (*cb)(response);
+                }
+                catch (const std::exception&)
+                {
+                    auto response = drogon::HttpResponse::newHttpResponse();
                     response->setStatusCode(
-                        drogon::k401Unauthorized);
-
-                    response->setBody(
-                        "Invalid email or password");
+                        drogon::k500InternalServerError);
+                    response->setBody("Unable to create login session");
+                    (*cb)(response);
                 }
-
-                callback(response);
             },
 
-            [callback](const drogon::orm::DrogonDbException& e)
+            [cb](const drogon::orm::DrogonDbException&)
             {
-                auto response =
-                    drogon::HttpResponse::newHttpResponse();
-
+                auto response = drogon::HttpResponse::newHttpResponse();
                 response->setStatusCode(
                     drogon::k500InternalServerError);
-
-                response->setBody(
-                    "Database error");
-
-                callback(response);
+                response->setBody("Database error");
+                (*cb)(response);
             },
 
             email,

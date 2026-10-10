@@ -93,6 +93,10 @@ function goToCart() {
     window.location.href = "cart.html";
 }
 
+function goToOrders() {
+    window.location.href = "orders.html";
+}
+
 
 // LOGOUT
 function logout() {
