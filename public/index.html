@@ -1,314 +1,202 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>MaliniMart - Login</title>
+    <title>MaliniMart - Home</title>
 
     <style>
-
         * {
-            margin: 0;
-            padding: 0;
             box-sizing: border-box;
         }
 
         body {
-            min-height: 100vh;
+            margin: 0;
             font-family: Arial, sans-serif;
-
-            background: linear-gradient(
-                135deg,
-                #8b0000,
-                #dc143c,
-                #ff4b5c
-            );
-
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background: #f5f8f6;
+            color: #26352d;
         }
 
-        .login-container {
-            width: 100%;
-            min-height: 100vh;
-
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            padding: 20px;
-        }
-
-        .login-box {
-            width: 420px;
-
+        header {
             background: white;
-
-            padding: 45px;
-
-            border-radius: 25px;
-
-            text-align: center;
-
-            box-shadow: 0 20px 50px rgba(0,0,0,0.35);
-        }
-
-        .login-icon {
-            width: 80px;
-            height: 80px;
-
-            margin: 0 auto 15px;
-
-            border-radius: 50%;
-
-            background: linear-gradient(
-                135deg,
-                #8b0000,
-                #dc143c
-            );
-
+            padding: 18px 6%;
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-
-            font-size: 40px;
-
-            box-shadow: 0 8px 20px rgba(220,20,60,0.35);
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 2px 8px #0000000d;
         }
 
-        .login-box h1 {
-            font-size: 38px;
-
-            color: #b00020;
-
-            margin-bottom: 8px;
-        }
-
-        .welcome {
-            color: #777;
-
-            font-size: 15px;
-
-            margin-bottom: 25px;
-        }
-
-        .login-box label {
-            display: block;
-
-            text-align: left;
-
+        .logo {
+            color: #176f4a;
+            font-size: 27px;
             font-weight: bold;
-
-            color: #333;
-
-            margin-top: 15px;
-
-            margin-bottom: 7px;
         }
 
-        .login-box input {
-            width: 100%;
-
-            padding: 14px 16px;
-
-            border: 2px solid #ddd;
-
-            border-radius: 12px;
-
-            font-size: 16px;
-
-            outline: none;
+        nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
         }
 
-        .login-box input:focus {
-            border-color: #dc143c;
-
-            box-shadow: 0 0 10px rgba(220,20,60,0.25);
+        nav a {
+            color: #26352d;
+            text-decoration: none;
+            font-weight: bold;
         }
 
-        .login-box button {
-            width: 100%;
+        nav a:hover {
+            color: #16804a;
+        }
 
-            margin-top: 25px;
-
-            padding: 14px;
-
-            border: none;
-
-            border-radius: 12px;
-
-            background: linear-gradient(
-                135deg,
-                #8b0000,
-                #dc143c
-            );
-
+        .hero {
+            margin: 35px auto;
+            width: 88%;
+            padding: 65px 35px;
+            border-radius: 18px;
+            background: linear-gradient(120deg, #176f4a, #26996b);
             color: white;
+        }
 
-            font-size: 17px;
+        .hero h1 {
+            font-size: clamp(30px, 5vw, 48px);
+            margin: 0 0 15px;
+        }
 
+        .hero p {
+            font-size: 18px;
+            line-height: 1.6;
+            max-width: 600px;
+        }
+
+        .button {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 14px 24px;
+            border-radius: 8px;
+            background: white;
+            color: #176f4a;
+            text-decoration: none;
             font-weight: bold;
-
-            cursor: pointer;
         }
 
-        .login-box button:hover {
-            transform: translateY(-2px);
-
-            box-shadow: 0 10px 25px rgba(139,0,0,0.35);
+        .section {
+            width: 88%;
+            margin: 40px auto;
         }
 
-        .register-link {
-            margin-top: 22px;
-
-            color: #777;
-
-            font-size: 15px;
+        .section h2 {
+            color: #176f4a;
+            font-size: 28px;
         }
 
-        .register-link a {
-            color: #c00025;
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 20px;
+        }
 
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px #0000000a;
+        }
+
+        .card h3 {
+            margin-top: 0;
+        }
+
+        .card p {
+            line-height: 1.5;
+            color: #5a665e;
+        }
+
+        .card a {
+            color: #176f4a;
             font-weight: bold;
-
             text-decoration: none;
         }
 
-        .register-link a:hover {
-            text-decoration: underline;
+        footer {
+            margin-top: 50px;
+            padding: 25px;
+            text-align: center;
+            background: #176f4a;
+            color: white;
         }
 
-        #message {
-            margin-top: 15px;
+        @media (max-width: 600px) {
+            header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
 
-            font-weight: bold;
+            .hero {
+                padding: 40px 22px;
+            }
         }
-
     </style>
-
 </head>
 
 <body>
+    <header>
+        <div class="logo">MaliniMart 🛍️</div>
 
-<div class="login-container">
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="products.html">Products</a>
+            <a href="cart.html">Cart</a>
+            <a href="orders.html">My Orders</a>
+            <a href="register.html">Register / Login</a>
+        </nav>
+    </header>
 
-    <div class="login-box">
+    <main>
+        <section class="hero">
+            <h1>Welcome to MaliniMart!</h1>
+            <p>
+                Discover products you love, enjoy a simple shopping
+                experience, and manage your orders in one place.
+            </p>
+            <a class="button" href="products.html">Shop Now →</a>
+        </section>
 
-        <div class="login-icon">
-            🛍️
-        </div>
+        <section class="section">
+            <h2>Explore MaliniMart</h2>
 
-        <h1>MaliniMart</h1>
+            <div class="cards">
+                <article class="card">
+                    <h3>🛍️ Browse Products</h3>
+                    <p>Explore the products available in our store.</p>
+                    <a href="products.html">View Products →</a>
+                </article>
 
-        <p class="welcome">
-            Welcome back! Please login to continue.
-        </p>
+                <article class="card">
+                    <h3>🛒 Shopping Cart</h3>
+                    <p>Review your selected items and continue to checkout.</p>
+                    <a href="cart.html">Open Cart →</a>
+                </article>
 
-        <form id="loginForm">
+                <article class="card">
+                    <h3>📦 My Orders</h3>
+                    <p>View your previous purchases and order status.</p>
+                    <a href="orders.html">View Orders →</a>
+                </article>
 
-            <label for="email">
-                Email
-            </label>
+                <article class="card">
+                    <h3>👤 Your Account</h3>
+                    <p>Open the registration or login page.</p>
+                    <a href="register.html">Open Account →</a>
+                </article>
+            </div>
+        </section>
+    </main>
 
-            <input
-                type="email"
-                id="email"
-                placeholder="Enter your email"
-                required
-            >
-
-            <label for="password">
-                Password
-            </label>
-
-            <input
-                type="password"
-                id="password"
-                placeholder="123456"
-                required
-            >
-
-            <button type="submit">
-                🔐 Login
-            </button>
-
-        </form>
-
-        <p id="message"></p>
-
-        <p class="register-link">
-            Don't have an account?
-            <a href="register.html">Register</a>
-        </p>
-
-    </div>
-
-</div>
-
-
-<script>
-document.getElementById("loginForm").addEventListener("submit", async function(event) {
-
-    event.preventDefault();
-
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    const message = document.getElementById("message");
-
-    message.style.color = "#333";
-    message.innerText = "Logging in...";
-
-    try {
-
-        const response = await fetch("/users/login", {
-            method: "POST",
-            credentials: "same-origin",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                email: email,
-                password: password
-            })
-        });
-
-        // Backend returns plain text, not JSON
-        const result = await response.text();
-
-        console.log("Login response:", result);
-        console.log("Status:", response.status);
-
-        if (response.ok) {
-
-            message.style.color = "green";
-            message.innerText = "Login successful!";
-
-            setTimeout(function() {
-                window.location.href = "/products.html";
-            }, 700);
-
-        } else {
-
-            message.style.color = "red";
-            message.innerText = result || "Invalid email or password.";
-
-        }
-
-    } catch (error) {
-
-        console.error("Login error:", error);
-
-        message.style.color = "red";
-        message.innerText = "Unable to connect to the server.";
-
-    }
-
-});
-</script>
-
+    <footer>
+        <p>© 2026 MaliniMart. Happy Shopping!</p>
+    </footer>
 </body>
-
 </html>

@@ -1,99 +1,294 @@
-/* ================================
-   PRODUCT PAGE
-================================ */
+```css
+/* =========================
+   MALINIMART - COMMON STYLES
+   ========================= */
 
-#productsList {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 25px;
-    margin-top: 20px;
-}
-
-/* Product card */
-.product-card {
-    background: white;
-    border-radius: 12px;
-    padding: 18px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-    overflow: hidden;
+* {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
-/* Product image */
-.product-card .product-image {
+body {
+    font-family: Arial, sans-serif;
+    min-height: 100vh;
+    background: #f4f7fb;
+    color: #172033;
+}
+
+/* =========================
+   LOGIN PAGE
+   ========================= */
+
+.login-container {
     width: 100%;
-    height: 220px;
-    object-fit: contain;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+}
+
+.login-box {
+    width: 100%;
+    max-width: 420px;
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+    text-align: center;
+}
+
+.login-icon {
+    font-size: 55px;
+    margin-bottom: 10px;
+}
+
+.login-box h1 {
+    color: #6a11cb;
+    font-size: 38px;
+    margin-bottom: 10px;
+}
+
+.login-box .welcome {
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.login-box label {
     display: block;
-    margin-bottom: 15px;
-    border-radius: 8px;
-}
-
-/* Product name */
-.product-card h3 {
-    color: #287b2f;
-    margin: 10px 0;
-    font-size: 20px;
-}
-
-/* Product description */
-.product-card p {
-    margin: 8px 0;
-    line-height: 1.4;
-}
-
-/* Product price */
-.product-card .product-price {
-    font-size: 20px;
+    text-align: left;
+    margin-top: 15px;
+    margin-bottom: 6px;
     font-weight: bold;
-    color: #222;
+    color: #333;
 }
 
-/* Add to cart button */
-.product-card button {
+.login-box input {
     width: 100%;
-    padding: 12px;
-    margin-top: 10px;
-    border: none;
-    border-radius: 8px;
-    background: #287b2f;
-    color: white;
+    padding: 13px 15px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
     font-size: 16px;
+    outline: none;
+}
+
+.login-box input:focus {
+    border-color: #6a11cb;
+}
+
+.login-box button {
+    width: 100%;
+    margin-top: 25px;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+    color: white;
+    font-size: 17px;
+    font-weight: bold;
     cursor: pointer;
 }
 
-.product-card button:hover {
-    background: #1f6125;
+.register-link {
+    margin-top: 20px;
+    color: #666;
 }
 
-/* Products page container */
+.register-link a {
+    color: #6a11cb;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+/* =========================
+   PRODUCTS PAGE
+   ========================= */
+
 .products-container {
-    max-width: 1100px;
-    margin: auto;
-    padding: 30px;
+    max-width: 1250px;
+    width: 94%;
+    margin: 0 auto;
+    padding: 25px 0 50px;
 }
 
-/* Top bar */
-.top-bar {
+.store-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 18px;
+    padding: 20px 0;
 }
 
-/* Mobile / small screen */
-@media (max-width: 900px) {
-    #productsList {
-        grid-template-columns: repeat(2, 1fr);
+.store-header h1 {
+    color: #173b70;
+    font-size: 30px;
+}
+
+.store-header p {
+    margin-top: 7px;
+    color: #697386;
+}
+
+.top-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.top-bar button,
+.product-card button {
+    border: none;
+    border-radius: 9px;
+    padding: 11px 16px;
+    background: #173b70;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.top-bar button:hover,
+.product-card button:hover {
+    background: #245ba5;
+    transform: translateY(-2px);
+}
+
+/* Electronics banner */
+
+.electronics-banner {
+    padding: 45px 35px;
+    margin: 15px 0 35px;
+    border-radius: 18px;
+    color: white;
+    background: linear-gradient(120deg, #173b70, #2878d0);
+}
+
+.electronics-banner h2 {
+    font-size: clamp(27px, 4vw, 40px);
+    margin-bottom: 12px;
+}
+
+.electronics-banner p {
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.section-title {
+    margin-bottom: 20px;
+    font-size: 25px;
+}
+
+/* Product grid */
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 22px;
+}
+
+.product-card {
+    min-width: 0;
+    background: white;
+    border: 1px solid #e5eaf1;
+    border-radius: 15px;
+    padding: 15px;
+    box-shadow: 0 5px 18px rgba(23, 59, 112, 0.07);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(23, 59, 112, 0.13);
+}
+
+/* Product pictures */
+
+.product-image {
+    display: block;
+    width: 100%;
+    height: 190px;
+    object-fit: contain;
+    background: #f7f9fc;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.product-card h3 {
+    font-size: 18px;
+    margin-bottom: 9px;
+    color: #172033;
+}
+
+.product-card p {
+    color: #697386;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+.product-card .product-price {
+    font-size: 21px;
+    font-weight: bold;
+    color: #176b45;
+    margin-top: auto;
+    margin-bottom: 15px;
+}
+
+.product-card button {
+    width: 100%;
+    margin-top: 4px;
+}
+
+/* =========================
+   RESPONSIVE DESIGN
+   ========================= */
+
+@media (max-width: 950px) {
+    .products-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 }
 
-@media (max-width: 600px) {
-    #productsList {
-        grid-template-columns: 1fr;
+@media (max-width: 650px) {
+    .products-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
     }
 
     .products-container {
-        padding: 15px;
+        width: 94%;
+    }
+
+    .store-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .electronics-banner {
+        padding: 30px 22px;
+    }
+
+    .product-card {
+        padding: 10px;
+    }
+
+    .product-image {
+        height: 140px;
+    }
+
+    .product-card h3 {
+        font-size: 16px;
     }
 }
+
+@media (max-width: 380px) {
+    .products-grid {
+        grid-template-columns: 1fr;
+    }
+}
+```

@@ -1,43 +1,259 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>MaliniMart - Cart</title>
-
+    <title>MaliniMart - My Cart</title>
     <link rel="stylesheet" href="style.css">
+
+    <style>
+        
+.checkout-btn {
+    width: 100%;
+    padding: 14px;
+    background: #176f4a;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.checkout-btn:hover {
+    background: #105638;
+}
+
+        body {
+            margin: 0;
+            background: #f5f7fb;
+            color: #243044;
+            font-family: Arial, sans-serif;
+        }
+
+        .cart-container {
+            max-width: 1100px;
+            margin: auto;
+            padding: 28px 20px;
+        }
+
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 28px;
+        }
+
+        .brand {
+            color: #176b45;
+            font-size: 28px;
+            margin: 0;
+        }
+
+        .cart-header button,
+        .checkout-button,
+        .remove-button {
+            border: 0;
+            border-radius: 8px;
+            padding: 12px 17px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .cart-header button,
+        .checkout-button {
+            background: #176b45;
+            color: white;
+        }
+
+        .cart-header button:hover,
+        .checkout-button:hover {
+            background: #105437;
+        }
+
+        .cart-banner {
+            background: linear-gradient(120deg, #176b45, #269766);
+            color: white;
+            padding: 26px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+        }
+
+        .cart-banner h2 {
+            margin: 0 0 8px;
+            font-size: 29px;
+        }
+
+        .cart-banner p {
+            margin: 0;
+        }
+
+        .cart-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 300px;
+            gap: 22px;
+            align-items: start;
+        }
+
+        #cartItems {
+            display: grid;
+            gap: 15px;
+        }
+
+        .cart-item {
+            background: white;
+            border: 1px solid #e5eaf0;
+            border-radius: 13px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            gap: 17px;
+        }
+
+        .cart-item img {
+            width: 105px;
+            height: 105px;
+            object-fit: contain;
+            border-radius: 10px;
+            background: #f5f7fb;
+        }
+
+        .item-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .item-info h3 {
+            margin: 0 0 8px;
+        }
+
+        .item-price {
+            color: #176b45;
+            font-weight: bold;
+            margin: 0 0 12px;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quantity-control button {
+            width: 30px;
+            height: 30px;
+            border: 1px solid #d5dce5;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .remove-button {
+            background: #fff0f0;
+            color: #b42318;
+            margin-top: 10px;
+            padding: 8px 11px;
+        }
+
+        .summary {
+            background: white;
+            border: 1px solid #e5eaf0;
+            border-radius: 13px;
+            padding: 22px;
+        }
+
+        .summary h3 {
+            margin-top: 0;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin: 17px 0;
+        }
+
+        .summary-total {
+            border-top: 1px solid #e5eaf0;
+            padding-top: 17px;
+            font-size: 19px;
+            font-weight: bold;
+        }
+
+        .checkout-button {
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .empty-cart {
+            background: white;
+            padding: 35px 20px;
+            border-radius: 13px;
+            text-align: center;
+        }
+
+        @media (max-width: 750px) {
+            .cart-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .cart-item {
+                align-items: flex-start;
+                flex-wrap: wrap;
+            }
+
+            .cart-item img {
+                width: 85px;
+                height: 85px;
+            }
+
+            .cart-banner h2 {
+                font-size: 24px;
+            }
+        }
+    </style>
 </head>
 
 <body>
+    <main class="cart-container">
+        <header class="cart-header">
+            <h1 class="brand">MaliniMart</h1>
+            <button onclick="goToProducts()">← Continue Shopping</button>
+        </header>
 
-    <div class="products-container">
+        <section class="cart-banner">
+            <h2>My Shopping Cart 🛒</h2>
+            <p>Review your products before checkout.</p>
+        </section>
 
-        <h1>MaliniMart</h1>
+        <div class="cart-layout">
+            <section id="cartList">
+                <p>Loading your cart...</p>
+            </section>
 
-        <div class="top-bar">
-            <h2>My Cart</h2>
+            <aside class="summary">
+                <h3>Order Summary</h3>
 
-            <button onclick="goToProducts()">
-                Continue Shopping
-            </button>
+                <div class="summary-row">
+                    <span>Items</span>
+                    <span id="itemCount">0</span>
+                </div>
+
+                <div class="summary-row summary-total">
+                    <span>Total</span>
+                    <span id="cartTotal">₹0.00</span>
+                </div>
+
+                <button class="checkout-button" onclick="checkout()">
+                      Proceed to Checkout →
+                </button>
+            </aside>
         </div>
-
-        <div id="cartList">
-            Loading cart...
-        </div>
-
-        <div id="cartTotal"></div>
-
-        <button id="checkoutButton" onclick="checkout()">
-            Checkout
-        </button>
-
-    </div>
+    </main>
 
     <script src="cart.js"></script>
-
 </body>
-
 </html>

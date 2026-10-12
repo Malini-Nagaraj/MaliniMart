@@ -1,124 +1,86 @@
+
 const userId = 4;
 
-
-// SHOW CHECKOUT MESSAGE
-function loadCheckout() {
-
-    const details = document.getElementById("checkoutDetails");
-
-    details.innerHTML = `
-        <p>Your cart is ready for checkout.</p>
-
-        <p>
-            Payment method:
-            <strong>Mock Payment</strong>
-        </p>
-
-        <p>
-            Click <strong>Confirm & Pay</strong>
-            to place your order.
-        </p>
-    `;
-}
-
-
-// MAKE PAYMENT / PLACE ORDER
-async function makePayment() {
-
-    const resultDiv = document.getElementById("result");
-    const paymentButton = document.getElementById("paymentButton");
-
-    paymentButton.disabled = true;
-
-    resultDiv.innerHTML = "Processing your order...";
+async function loadCheckout() {
+    const itemsContainer = document.getElementById("checkoutItems");
+    const totalElement = document.getElementById("checkoutTotal");
 
     try {
+        const response = await fetch(`/cart?userId=${userId}`);
 
-        const response = await fetch("/checkout", {
-
-            method: "POST",
-
-            headers: {
-                "Content-Type": "application/json"
-            },
-
-            body: JSON.stringify({
-                userId: userId
-            })
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-
-            resultDiv.innerHTML = `
-                <div class="product-card">
-
-                    <h2>Order Confirmed! ✅</h2>
-
-                    <p>
-                        ${result.message}
-                    </p>
-
-                    <p>
-                        <strong>Order ID:</strong>
-                        ${result.orderId}
-                    </p>
-
-                    <p>
-                        <strong>Status:</strong>
-                        ${result.status}
-                    </p>
-
-                    <p>
-                        <strong>Total Amount:</strong>
-                        ₹${result.totalAmount}
-                    </p>
-
-                    <button onclick="goToProducts()">
-                        Continue Shopping
-                    </button>
-
-                </div>
-            `;
-
-            paymentButton.style.display = "none";
-
-        } else {
-
-            resultDiv.innerHTML = `
-                <p>
-                    ${result.message || "Checkout failed."}
-                </p>
-            `;
-
-            paymentButton.disabled = false;
+        if (!response.ok) {
+            throw new Error("Could not load cart");
         }
 
+        const cart = await response.json();
+
+        itemsContainer.innerHTML = "";
+
+        if (!cart.items || cart.items.length === 0) {
+            itemsContainer.textContent = "Your cart is empty.";
+            totalElement.textContent = "₹0.00";
+            return;
+        }
+
+        cart.items.forEach(item => {
+            const row = document.createElement("p");
+            row.textContent =
+                `${item.name} × ${item.quantity} — ₹${item.total}`;
+            itemsContainer.appendChild(row);
+        });
+
+        totalElement.textContent =
+            `₹${Number(cart.grandTotal).toFixed(2)}`;
+
     } catch (error) {
-
+        itemsContainer.textContent =
+            "Unable to load your cart. Please try again.";
         console.error(error);
-
-        resultDiv.innerHTML =
-            "<p>Unable to connect to server.</p>";
-
-        paymentButton.disabled = false;
     }
 }
 
+document.getElementById("checkoutForm").addEventListener(
+    "submit",
+    async function (event) {
+        event.preventDefault();
 
-// GO TO CART
-function goToCart() {
+        const message = document.getElementById("message");
+        const button = this.querySelector('button[type="submit"]');
 
-    window.location.href = "cart.html";
-}
+        button.disabled = true;
+        message.textContent = "Placing your order...";
 
+        try {
+            const response = await fetch("/orders/checkout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ userId: userId })
+            });
 
-// GO TO PRODUCTS
-function goToProducts() {
+            const result = await response.json().catch(() => ({}));
 
-    window.location.href = "products.html";
-}
+            if (!response.ok) {
+                throw new Error(
+                    result.message || "Checkout failed. Please try again."
+                );
+            }
 
+            const confirmation = new URLSearchParams({
+                orderId: result.orderId,
+                totalAmount: result.totalAmount,
+                status: result.status
+            });
+
+            window.location.href =
+                `/confirmation.html?${confirmation.toString()}`;
+
+        } catch (error) {
+            message.textContent = error.message;
+            button.disabled = false;
+        }
+    }
+);
 
 loadCheckout();

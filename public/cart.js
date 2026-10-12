@@ -1,117 +1,143 @@
+
 const userId = 4;
 
-
 async function loadCart() {
+    const cartList = document.getElementById("cartList");
+    const cartTotal = document.getElementById("cartTotal");
+    const itemCount = document.getElementById("itemCount");
 
-    const cartList =
-        document.getElementById("cartList");
-
-    const cartTotal =
-        document.getElementById("cartTotal");
+    cartList.innerHTML = "<p>Loading your cart...</p>";
 
     try {
+        const response = await fetch(`/cart?userId=${userId}`);
 
-        const response =
-            await fetch(`/cart?userId=${userId}`);
+        if (!response.ok) {
+            throw new Error("Failed to load cart");
+        }
 
-        const cart =
-            await response.json();
+        const cart = await response.json();
 
         cartList.innerHTML = "";
 
-        if (!cart.items || cart.items.length === 0) {
+        const items = Array.isArray(cart.items) ? cart.items : [];
 
-            cartList.innerHTML =
-                "<p>Your cart is empty.</p>";
+        if (items.length === 0) {
+            cartList.innerHTML = `
+                <div class="empty-cart">
+                    <h3>Your cart is empty 🛒</h3>
+                    <p>Add a product to see it here.</p>
+                    <button class="checkout-button"
+                        onclick="goToProducts()">
+                        Continue Shopping
+                    </button>
+                </div>
+            `;
 
-            cartTotal.innerHTML = "";
-
+            cartTotal.textContent = "₹0.00";
+            itemCount.textContent = "0";
             return;
         }
 
-        cart.items.forEach(item => {
+        let count = 0;
 
-            const card =
-                document.createElement("div");
+        items.forEach(item => {
+            const card = document.createElement("article");
+            card.className = "cart-item";
 
-            card.className = "product-card";
+            const image = document.createElement("img");
+            image.src = item.image ||
+                "https://placehold.co/200x200?text=Product";
+            image.alt = item.name || "Product";
+            image.onerror = function () {
+                this.onerror = null;
+                this.src = "https://placehold.co/200x200?text=Product";
+            };
 
-            card.innerHTML = `
-                <h3>${item.name}</h3>
+            const info = document.createElement("div");
+            info.className = "item-info";
 
-                <p>Price: ₹${item.price}</p>
+            const name = document.createElement("h3");
+            name.textContent = item.name || "Product";
 
-                <p>Quantity: ${item.quantity}</p>
+            const price = document.createElement("p");
+            price.className = "item-price";
+            price.textContent = `₹${Number(item.price || 0).toLocaleString("en-IN")}`;
 
-                <p>Total: ₹${item.total}</p>
+            const quantity = document.createElement("p");
+            quantity.textContent = `Quantity: ${item.quantity}`;
 
-                <button onclick="removeItem(${item.id})">
-                    Remove
-                </button>
-            `;
+            const total = document.createElement("p");
+            total.textContent =
+                `Subtotal: ₹${Number(item.total || 0).toLocaleString("en-IN")}`;
 
+            const removeButton = document.createElement("button");
+            removeButton.className = "remove-button";
+            removeButton.textContent = "Remove";
+            removeButton.onclick = () => removeItem(item.id);
+
+            info.append(name, price, quantity, total, removeButton);
+            card.append(image, info);
             cartList.appendChild(card);
+
+            count += Number(item.quantity || 0);
         });
 
-        cartTotal.innerHTML = `
-            <h2>Grand Total: ₹${cart.grandTotal}</h2>
+        itemCount.textContent = String(count);
+
+        const grandTotal = Number(cart.grandTotal || 0);
+        cartTotal.textContent = `₹${grandTotal.toLocaleString("en-IN", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        })}`;
+
+    } catch (error) {
+        console.error("Error loading cart:", error);
+
+        cartList.innerHTML = `
+            <div class="empty-cart">
+                <h3>Unable to load your cart</h3>
+                <p>Check your server connection and try again.</p>
+                <button class="checkout-button" onclick="loadCart()">
+                    Try Again
+                </button>
+            </div>
         `;
 
-    } catch (error) {
-
-        cartList.innerHTML =
-            "Unable to load cart.";
-
-        console.error(error);
+        cartTotal.textContent = "₹0.00";
+        itemCount.textContent = "0";
     }
 }
-
 
 async function removeItem(cartId) {
+    if (!confirm("Remove this product from your cart?")) {
+        return;
+    }
 
     try {
+        const response = await fetch(
+            `/cart/remove?cartId=${encodeURIComponent(cartId)}`,
+            { method: "DELETE" }
+        );
 
-        const response =
-            await fetch(`/cart/remove?cartId=${cartId}`, {
-
-                method: "DELETE"
-
-            });
-
-        const result =
-            await response.json();
-
-        if (response.ok) {
-
-            alert("Product removed from cart.");
-
-            loadCart();
-
-        } else {
-
-            alert(result.message ||
-                  "Failed to remove product.");
+        if (!response.ok) {
+            throw new Error("Failed to remove product");
         }
 
+        alert("Product removed from cart.");
+        await loadCart();
+
     } catch (error) {
-
-        alert("Unable to connect to server.");
-
         console.error(error);
+        alert("Unable to remove the product. Please try again.");
     }
 }
 
-
 function goToProducts() {
-
     window.location.href = "products.html";
 }
 
-
 function checkout() {
-
     window.location.href = "checkout.html";
 }
-
 
 loadCart();

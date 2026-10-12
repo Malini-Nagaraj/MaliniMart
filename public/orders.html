@@ -1,39 +1,208 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>MaliniMart - My Orders</title>
 
     <link rel="stylesheet" href="style.css">
+
+    <style>
+        body {
+            margin: 0;
+            background: #f5f7fb;
+            color: #202938;
+            font-family: Arial, sans-serif;
+        }
+
+        .orders-container {
+            max-width: 1100px;
+            margin: auto;
+            padding: 30px 22px;
+        }
+
+        .orders-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .brand {
+            color: #176b45;
+            font-size: 28px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .brand span {
+            color: #f59e0b;
+        }
+
+        .shopping-button {
+            background: #176b45;
+            color: white;
+            border: none;
+            border-radius: 9px;
+            padding: 12px 19px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .shopping-button:hover {
+            background: #105437;
+        }
+
+        .welcome-banner {
+            background: linear-gradient(120deg, #176b45, #269766);
+            color: white;
+            border-radius: 18px;
+            padding: 30px;
+            margin-bottom: 28px;
+        }
+
+        .welcome-banner h2 {
+            margin: 0 0 10px;
+            font-size: 30px;
+        }
+
+        .welcome-banner p {
+            margin: 0;
+            line-height: 1.6;
+            color: #e8fff2;
+        }
+
+        .orders-section-title {
+            margin-bottom: 18px;
+            font-size: 22px;
+        }
+
+        #ordersList {
+            display: grid;
+            gap: 20px;
+        }
+
+        .order-card {
+            background: white;
+            border: 1px solid #e5eaf0;
+            border-radius: 15px;
+            padding: 22px;
+            box-shadow: 0 5px 18px rgba(30, 50, 70, 0.05);
+        }
+
+        .order-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            border-bottom: 1px solid #edf0f4;
+            padding-bottom: 17px;
+            margin-bottom: 18px;
+        }
+
+        .order-id {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 0 0 7px;
+        }
+
+        .order-date {
+            color: #758094;
+            font-size: 13px;
+        }
+
+        .order-status {
+            display: inline-block;
+            background: #e4f8ec;
+            color: #187344;
+            border-radius: 20px;
+            padding: 8px 13px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .order-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 18px;
+        }
+
+        .order-total-label {
+            color: #758094;
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        .order-total {
+            color: #176b45;
+            font-size: 25px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .order-note {
+            color: #657084;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .empty-orders {
+            background: white;
+            padding: 35px 20px;
+            text-align: center;
+            border-radius: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .orders-container {
+                padding: 20px 14px;
+            }
+
+            .welcome-banner {
+                padding: 23px;
+            }
+
+            .welcome-banner h2 {
+                font-size: 25px;
+            }
+
+            .order-card {
+                padding: 17px;
+            }
+        }
+    </style>
 </head>
 
 <body>
+    <main class="orders-container">
 
-<div class="products-container">
+        <header class="orders-header">
+            <h1 class="brand">Malini<span>Mart</span></h1>
 
-    <h1>MaliniMart</h1>
+            <button class="shopping-button" onclick="goToProducts()">
+                ← Continue Shopping
+            </button>
+        </header>
 
-    <div class="top-bar">
+        <section class="welcome-banner">
+            <h2>My Orders</h2>
+            <p>Track your purchases and view your order history in one place.</p>
+        </section>
 
-        <h2>My Orders</h2>
+        <h3 class="orders-section-title">Your Order History</h3>
 
-        <button onclick="goToProducts()">
-            Continue Shopping
-        </button>
+        <section id="ordersList">
+            <p>Loading your orders...</p>
+        </section>
 
-    </div>
+    </main>
 
-    <div id="ordersList">
-        Loading orders...
-    </div>
-
-</div>
-
-<script src="orders.js"></script>
-
+    <script src="orders.js"></script>
 </body>
-
 </html>

@@ -1,6 +1,8 @@
 #include <drogon/drogon.h>
 #include <cstdlib>
 #include <string>
+#include <iostream>
+#include <cstdint>
 
 #include "controller/UserController.h"
 #include "controller/ProductController.h"
@@ -79,6 +81,21 @@ auto dbClient = drogon::orm::DbClient::newPgClient(
         },
         {drogon::Post}
     );
+    
+    // ==============================
+    // 5A. CHANGE PASSWORD
+    // ==============================
+    drogon::app().registerHandler(
+        "/users/change-password",
+        [&userController](
+            const drogon::HttpRequestPtr& req,
+            std::function<void(const drogon::HttpResponsePtr&)>&& callback)
+        {
+            userController.changePassword(req, std::move(callback));
+        },
+        {drogon::Put}
+    );
+
 
     // ==============================
     // 6. GET PRODUCTS
@@ -219,6 +236,22 @@ auto dbClient = drogon::orm::DbClient::newPgClient(
         },
         {drogon::Post}
     );
+
+    
+    // ==============================
+    // CHECKOUT
+    // ==============================
+    drogon::app().registerHandler(
+        "/orders/checkout",
+        [&orderController](
+            const drogon::HttpRequestPtr& req,
+            std::function<void(const drogon::HttpResponsePtr&)>&& callback)
+        {
+            orderController.checkout(req, std::move(callback));
+        },
+        {drogon::Post}
+    );
+
 
     // ==============================
     // 16. GET ORDERS

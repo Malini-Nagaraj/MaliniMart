@@ -1,66 +1,86 @@
 const userId = 4;
 
-// LOAD PRODUCTS
 async function loadProducts() {
     const productsList = document.getElementById("productsList");
 
+    productsList.innerHTML = "<p>Loading products...</p>";
+
     try {
         const response = await fetch("/products");
+
+        if (!response.ok) {
+            throw new Error("Failed to load products");
+        }
+
         const products = await response.json();
+
+        console.log("Products received:", products);
 
         productsList.innerHTML = "";
 
-        products.forEach(product => {
+        if (!Array.isArray(products) || products.length === 0) {
+            productsList.innerHTML = "<h2>No products found.</h2>";
+            return;
+        }
 
+        products.forEach(function(product) {
             const card = document.createElement("div");
             card.className = "product-card";
 
-            card.innerHTML = `
-                <img
-                    src="${product.image}"
-                    alt="${product.name}"
-                    class="product-image"
-                    onerror="this.style.display='none'"
-                >
+            // Product image
+            const image = document.createElement("img");
+            image.className = "product-image";
+            image.alt = product.name || "Product image";
+            image.src = product.image || "https://placehold.co/400x300?text=Product";
 
-                <h3>${product.name}</h3>
+            image.onerror = function() {
+                image.onerror = null;
+                image.src = "https://placehold.co/400x300?text=Image+Unavailable";
+            };
 
-                <p>${product.description}</p>
+            // Product name
+            const name = document.createElement("h3");
+            name.textContent = product.name;
 
-                <p class="product-price">
-                    ₹${product.price}
-                </p>
+            // Product description
+            const description = document.createElement("p");
+            description.textContent = product.description || "No description available.";
 
-                <button onclick="addToCart(${product.id})">
-                    Add to Cart
-                </button>
-            `;
+            // Product price
+            const price = document.createElement("h3");
+            price.textContent = "₹" + Number(product.price).toLocaleString("en-IN");
+
+            // Add to Cart button
+            const button = document.createElement("button");
+            button.textContent = "Add to Cart";
+
+            button.onclick = function() {
+                addToCart(product.id);
+            };
+
+            card.appendChild(image);
+            card.appendChild(name);
+            card.appendChild(description);
+            card.appendChild(price);
+            card.appendChild(button);
 
             productsList.appendChild(card);
         });
 
     } catch (error) {
-
+        console.error("Error loading products:", error);
         productsList.innerHTML =
-            "Unable to load products.";
-
-        console.error(error);
+            "<h3>Could not load products. Please check the server.</h3>";
     }
 }
 
-
-// ADD PRODUCT TO CART
 async function addToCart(productId) {
-
     try {
-
         const response = await fetch("/cart/add", {
             method: "POST",
-
             headers: {
                 "Content-Type": "application/json"
             },
-
             body: JSON.stringify({
                 userId: userId,
                 productId: productId,
@@ -68,27 +88,17 @@ async function addToCart(productId) {
             })
         });
 
-        const result = await response.json();
-
         if (response.ok) {
-
-            alert("Product added to cart successfully!");
-
+            alert("Product added to cart!");
         } else {
-
-            alert(result.message || "Failed to add product.");
+            alert("Unable to add product to cart.");
         }
-
     } catch (error) {
-
-        alert("Unable to connect to server.");
-
         console.error(error);
+        alert("Server connection failed.");
     }
 }
 
-
-// GO TO CART
 function goToCart() {
     window.location.href = "cart.html";
 }
@@ -97,12 +107,8 @@ function goToOrders() {
     window.location.href = "orders.html";
 }
 
-
-// LOGOUT
 function logout() {
     window.location.href = "index.html";
 }
 
-
-// LOAD PRODUCTS WHEN PAGE OPENS
 loadProducts();

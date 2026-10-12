@@ -169,6 +169,8 @@ public:
                     item["name"] =
                         row["name"].as<std::string>();
 
+                        item["image"] = row["image"].as<std::string>();
+
                     item["price"] =
                         row["price"].as<double>();
 

@@ -1,0 +1,137 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation - MaliniMart</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7f5;
+            color: #26352d;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .confirmation-card {
+            background: white;
+            width: 100%;
+            max-width: 520px;
+            padding: 40px 28px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        .success-icon {
+            width: 76px;
+            height: 76px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            background: #dff5e7;
+            color: #16804a;
+            font-size: 44px;
+            line-height: 76px;
+        }
+
+        h1 {
+            color: #176f4a;
+            margin-bottom: 10px;
+        }
+
+        .details {
+            background: #f5f8f6;
+            padding: 18px;
+            border-radius: 10px;
+            margin: 24px 0;
+            text-align: left;
+        }
+
+        .details p {
+            margin: 12px 0;
+            overflow-wrap: anywhere;
+        }
+
+        .button {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            margin-top: 12px;
+            background: #176f4a;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .secondary {
+            background: #e8eee9;
+            color: #176f4a;
+        }
+
+        #notice {
+            color: #b42318;
+        }
+    </style>
+</head>
+
+<body>
+    <main class="confirmation-card">
+        <div class="success-icon">✓</div>
+
+        <h1>Order Confirmed!</h1>
+        <p>Thank you for shopping with MaliniMart.</p>
+        <p>Your order has been placed successfully.</p>
+
+        <div class="details">
+            <p><strong>Order Number:</strong> <span id="orderId">—</span></p>
+            <p><strong>Total Amount:</strong> <span id="totalAmount">—</span></p>
+            <p><strong>Status:</strong> <span id="status">—</span></p>
+        </div>
+
+        <p id="notice" role="alert"></p>
+
+        <a class="button" href="products.html">Continue Shopping</a>
+        <a class="button secondary" href="orders.html">View My Orders</a>
+    </main>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+
+        const orderId = params.get("orderId");
+        const totalAmount = Number(params.get("totalAmount"));
+        const status = params.get("status");
+
+        if (
+            orderId &&
+            Number.isFinite(Number(orderId)) &&
+            Number(orderId) > 0 &&
+            Number.isFinite(totalAmount) &&
+            totalAmount >= 0 &&
+            status === "Confirmed"
+        ) {
+            document.getElementById("orderId").textContent = orderId;
+            document.getElementById("totalAmount").textContent =
+                "₹" + totalAmount.toFixed(2);
+            document.getElementById("status").textContent = status;
+        } else {
+            document.querySelector("h1").textContent =
+                "Order Confirmation";
+            document.querySelector(".success-icon").textContent = "i";
+            document.querySelectorAll(".details p").forEach(p => p.remove());
+            document.getElementById("notice").textContent =
+                "No valid order confirmation was provided. Please check your order history.";
+        }
+    </script>
+</body>
+</html>
